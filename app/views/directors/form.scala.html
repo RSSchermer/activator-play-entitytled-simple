@@ -1,0 +1,15 @@
+@(directorForm: Form[Director], action: Call)
+
+@helper.form(action = action) {
+    <fieldset>
+        <input type="hidden" name="id" value="@directorForm("id").value">
+
+        @helper.inputText(directorForm("name"))
+    </fieldset>
+
+    <div class="actions">
+        <button type="submit">Save</button>
+
+        <a href="@routes.Directors.list()">Cancel</a>
+    </div>
+}

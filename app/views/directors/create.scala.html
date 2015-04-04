@@ -1,0 +1,7 @@
+@(directorForm: Form[Director])
+
+@main("Creating a new director") {
+    <h1>Creating a new director</h1>
+
+    @directors.form(directorForm, routes.Directors.save())
+}

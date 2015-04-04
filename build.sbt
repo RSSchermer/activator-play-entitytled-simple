@@ -1,12 +1,13 @@
-name := """play-slick-quickstart"""
+name := """play-entitytled-example"""
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.11.5" // or "2.10.4"
+scalaVersion := "2.10.4"
 
 libraryDependencies ++= Seq(
-  "org.webjars" %% "webjars-play" % "2.3.0-2",
-  "com.typesafe.play" %% "play-slick" % "0.8.1"
+  "com.typesafe.play"             %% "play-slick"          % "0.8.0",
+  "com.github.rsschermer"         %% "entitytled-core"     % "0.3.0",
+  "org.scalatestplus"             %% "play"                % "1.1.0"   % "test"
 )
 
 fork in Test := false

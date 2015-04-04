@@ -1,0 +1,33 @@
+@(movies: Seq[Movie])(implicit flash: play.api.mvc.Flash, session: play.api.db.slick.Session)
+
+@main("Movies") {
+    <h1>Movies</h1>
+
+    @flash.get("success").map { message =>
+        @message
+    }
+
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Director</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+        @for(movie <- movies){
+            <tr>
+                <td>@movie.title</td>
+                <td>@movie.director.map(_.name)</td>
+                <td><a href="@routes.Movies.edit(movie.id.get)">Edit</a></td>
+                <td><a href="@routes.Movies.remove(movie.id.get)">Delete</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <a href="@routes.Movies.create()">Add new movie</a>
+}

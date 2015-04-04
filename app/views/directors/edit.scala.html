@@ -1,0 +1,7 @@
+@(directorID: Long, directorForm: Form[Director])
+
+@main("Editing a director") {
+    <h1>Editing a director</h1>
+
+    @directors.form(directorForm, routes.Directors.update(directorID))
+}

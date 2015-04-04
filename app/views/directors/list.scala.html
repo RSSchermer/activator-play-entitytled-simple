@@ -1,0 +1,31 @@
+@(directors: Seq[Director])(implicit flash: play.api.mvc.Flash)
+
+@main("Directors") {
+    <h1>Directors</h1>
+
+    @flash.get("success").map { message =>
+        @message
+    }
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+        @for(director <- directors){
+            <tr>
+                <td>@director.name</td>
+                <td><a href="@routes.Directors.edit(director.id.get)">Edit</a></td>
+                <td><a href="@routes.Directors.remove(director.id.get)">Delete</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <a href="@routes.Directors.create()">Add new director</a>
+}

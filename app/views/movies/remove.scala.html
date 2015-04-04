@@ -1,0 +1,15 @@
+@(movie: Movie)
+
+@main("Deleting a movie") {
+    <h1>Are you sure you want to delete this movie?</h1>
+
+    <dl>
+        <dt>Title</dt><dd>@movie.title</dd>
+    </dl>
+
+    @helper.form(routes.Movies.delete(movie.id.get)) {
+        <button type="submit">Delete</button>
+
+        <a href="@routes.Movies.list()">Cancel</a>
+    }
+}

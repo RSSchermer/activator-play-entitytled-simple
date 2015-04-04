@@ -1,0 +1,18 @@
+@(movieForm: Form[Movie], action: Call)(implicit session: play.api.db.slick.Session)
+
+@helper.form(action = action) {
+    <fieldset>
+        <input type="hidden" name="id" value="@movieForm("id").value">
+
+        @helper.inputText(movieForm("title"))
+        @helper.select(movieForm("directorID"),
+            Director.list.map(d => d.id.get.toString -> d.name),
+            '_label -> "Director")
+    </fieldset>
+
+    <div class="actions">
+        <button type="submit">Save</button>
+
+        <a href="@routes.Movies.list()">Cancel</a>
+    </div>
+}
