@@ -1,0 +1,16 @@
+@(movie: Movie)(implicit flash: play.api.mvc.Flash, session: play.api.db.slick.Session)
+
+@main("Showing a movie") {
+    <h1>Showing a movie</h1>
+
+    @flash.get("success").map { message =>
+        @message
+    }
+
+    <dl>
+        <dt>Title</dt><dd>@movie.title</dd>
+        <dt>Director</dt><dd>@movie.director.map(_.name)</dd>
+    </dl>
+
+    <a href="@routes.Movies.edit(movie.id.get)">Edit</a>
+}

@@ -19,7 +19,7 @@
         <tbody>
         @for(director <- directors){
             <tr>
-                <td>@director.name</td>
+                <td><a href="@routes.Directors.show(director.id.get)">@director.name</a></td>
                 <td><a href="@routes.Directors.edit(director.id.get)">Edit</a></td>
                 <td><a href="@routes.Directors.remove(director.id.get)">Delete</a></td>
             </tr>

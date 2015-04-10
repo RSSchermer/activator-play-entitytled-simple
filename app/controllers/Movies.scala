@@ -21,6 +21,14 @@ object Movies extends Controller {
     Ok(html.movies.list(Movie.include(Movie.director).list))
   }
 
+  def show(id: Long) = DBAction { implicit rs =>
+    Movie.include(Movie.director).find(id) match {
+      case Some(movie) =>
+        Ok(html.movies.show(movie))
+      case _ => NotFound
+    }
+  }
+
   def create = DBAction { implicit rs =>
     Ok(html.movies.create(movieForm))
   }
@@ -50,7 +58,7 @@ object Movies extends Controller {
         BadRequest(html.movies.edit(id, formWithErrors)),
       movie => {
         Movie.update(movie)
-        Redirect(routes.Movies.list())
+        Redirect(routes.Movies.show(id))
           .flashing("success" -> "The movie was updated successfully.")
       }
     )

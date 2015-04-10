@@ -1,0 +1,23 @@
+@(director: Director)(implicit flash: play.api.mvc.Flash, session: play.api.db.slick.Session)
+
+@main("Showing a director") {
+    <h1>Showing a director</h1>
+
+    @flash.get("success").map { message =>
+        @message
+    }
+
+    <dl>
+        <dt>Name</dt><dd>@director.name</dd>
+        <dt>Movies</dt>
+        <dd>
+            <ul>
+            @for(movie <- director.movies) {
+                <li>@movie.title</li>
+            }
+            </ul>
+        </dd>
+    </dl>
+
+    <a href="@routes.Directors.edit(director.id.get)">Edit</a>
+}

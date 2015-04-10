@@ -20,7 +20,7 @@
         <tbody>
         @for(movie <- movies){
             <tr>
-                <td>@movie.title</td>
+                <td><a href="@routes.Movies.show(movie.id.get)">@movie.title</a></td>
                 <td>@movie.director.map(_.name)</td>
                 <td><a href="@routes.Movies.edit(movie.id.get)">Edit</a></td>
                 <td><a href="@routes.Movies.remove(movie.id.get)">Delete</a></td>

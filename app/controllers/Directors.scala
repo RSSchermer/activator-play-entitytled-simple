@@ -20,6 +20,14 @@ object Directors extends Controller {
     Ok(html.directors.list(Director.list))
   }
 
+  def show(id: Long) = DBAction { implicit rs =>
+    Director.include(Director.movies).find(id) match {
+      case Some(director) =>
+        Ok(html.directors.show(director))
+      case _ => NotFound
+    }
+  }
+
   def create = DBAction { implicit rs =>
     Ok(html.directors.create(directorForm))
   }
@@ -49,7 +57,7 @@ object Directors extends Controller {
         BadRequest(html.directors.edit(id, formWithErrors)),
       director => {
         Director.update(director)
-        Redirect(routes.Directors.list())
+        Redirect(routes.Directors.show(id))
           .flashing("success" -> "The director was updated successfully.")
       }
     )
