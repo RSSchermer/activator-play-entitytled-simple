@@ -8,14 +8,12 @@ case class Movie(
     id: Option[Long],
     title: String,
     directorID: Option[Long])(implicit includes: Includes[Movie])
-  extends Entity[Movie]
+  extends Entity[Movie, Long]
 {
-  type IdType = Long
-
   val director = one(Movie.director)
 }
 
-object Movie extends EntityCompanion[Movies, Movie] {
+object Movie extends EntityCompanion[Movies, Movie, Long] {
   val query = TableQuery[Movies]
 
   val director = toOne[Directors, Director](

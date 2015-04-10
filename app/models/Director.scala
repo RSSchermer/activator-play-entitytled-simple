@@ -7,14 +7,12 @@ import models.meta.Schema._
 case class Director(
     id: Option[Long],
     name: String)(implicit includes: Includes[Director])
-  extends Entity[Director]
+  extends Entity[Director, Long]
 {
-  type IdType = Long
-
   val movies = many(Director.movies)
 }
 
-object Director extends EntityCompanion[Directors, Director] {
+object Director extends EntityCompanion[Directors, Director, Long] {
   val query = TableQuery[Directors]
 
   val movies = toMany[Movies, Movie](
