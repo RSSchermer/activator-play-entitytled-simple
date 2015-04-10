@@ -1,4 +1,4 @@
-name := """play-entitytled-example"""
+name := """play-entitytled-simple"""
 
 version := "1.0-SNAPSHOT"
 
