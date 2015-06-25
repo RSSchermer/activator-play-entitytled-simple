@@ -1,7 +1,7 @@
-@(movieForm: Form[Movie])(implicit session: play.api.db.slick.Session)
+@(movieForm: Form[Movie], directors: Seq[Director])(implicit messages: Messages)
 
 @main("Creating a new movie") {
     <h1>Creating a new movie</h1>
 
-    @movies.form(movieForm, routes.Movies.save())
+    @movies.form(movieForm, directors, routes.Movies.save())
 }

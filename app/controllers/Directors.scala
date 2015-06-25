@@ -3,10 +3,16 @@ package controllers
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import play.api.db.slick._
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 import views._
 import models._
+import models.meta.Profile._
+import models.meta.Profile.driver.api._
+
+import scala.concurrent.Future
 
 object Directors extends Controller {
   val directorForm = Form(
@@ -16,63 +22,67 @@ object Directors extends Controller {
     )(Director.apply)(Director.unapply)
   )
 
-  def list = DBAction { implicit rs =>
-    Ok(html.directors.list(Director.list))
+  def list = Action.async { implicit rs =>
+    db.run(Director.all.result).map { directors =>
+      Ok(html.directors.list(directors))
+    }
   }
 
-  def show(id: Long) = DBAction { implicit rs =>
-    Director.include(Director.movies).find(id) match {
+  def show(id: Long) = Action.async { implicit rs =>
+    db.run(Director.one(id).include(Director.movies).result).map {
       case Some(director) =>
         Ok(html.directors.show(director))
       case _ => NotFound
     }
   }
 
-  def create = DBAction { implicit rs =>
+  def create = Action { implicit rs =>
     Ok(html.directors.create(directorForm))
   }
 
-  def save = DBAction { implicit rs =>
+  def save = Action.async { implicit rs =>
     directorForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(html.directors.create(formWithErrors)),
-      director => {
-        Director.insert(director)
-        Redirect(routes.Directors.list())
-          .flashing("success" -> "The director was created successfully.")
-      }
+      formWithErrors =>
+        Future.successful(BadRequest(html.directors.create(formWithErrors))),
+      director =>
+        db.run(Director.insert(director)).map { _ =>
+          Redirect(routes.Directors.list())
+            .flashing("success" -> "The director was created successfully.")
+        }
     )
   }
 
-  def edit(id: Long) = DBAction { implicit rs =>
-    Director.find(id) match {
+  def edit(id: Long) = Action.async { implicit rs =>
+    db.run(Director.one(id).result).map {
       case Some(director) =>
         Ok(html.directors.edit(director.id.get, directorForm.fill(director)))
       case _ => NotFound
     }
   }
 
-  def update(id: Long) = DBAction { implicit rs =>
+  def update(id: Long) = Action.async { implicit rs =>
     directorForm.bindFromRequest.fold(
       formWithErrors =>
-        BadRequest(html.directors.edit(id, formWithErrors)),
-      director => {
-        Director.update(director)
-        Redirect(routes.Directors.show(id))
-          .flashing("success" -> "The director was updated successfully.")
-      }
+        Future.successful(BadRequest(html.directors.edit(id, formWithErrors))),
+      director =>
+        db.run(Director.update(director)).map { _ =>
+          Redirect(routes.Directors.show(id))
+            .flashing("success" -> "The director was updated successfully.")
+        }
     )
   }
 
-  def remove(id: Long) = DBAction { implicit rs =>
-    Director.find(id) match {
+  def remove(id: Long) = Action.async { implicit rs =>
+    db.run(Director.one(id).result).map {
       case Some(director) => Ok(html.directors.remove(director))
       case _ => NotFound
     }
   }
 
-  def delete(id: Long) = DBAction { implicit rs =>
-    Director.delete(id)
-    Redirect(routes.Directors.list())
-      .flashing("success" -> "The director was deleted successfully.")
+  def delete(id: Long) = Action.async { implicit rs =>
+    db.run(Director.delete(id)).map { _ =>
+      Redirect(routes.Directors.list())
+        .flashing("success" -> "The director was deleted successfully.")
+    }
   }
 }

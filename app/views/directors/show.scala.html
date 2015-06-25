@@ -1,4 +1,6 @@
-@(director: Director)(implicit flash: play.api.mvc.Flash, session: play.api.db.slick.Session)
+@(director: Director)(implicit flash: Flash, ec: scala.concurrent.ExecutionContext)
+
+@import models.meta.Profile._
 
 @main("Showing a director") {
     <h1>Showing a director</h1>

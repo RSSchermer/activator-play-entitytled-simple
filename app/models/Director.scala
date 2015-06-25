@@ -1,7 +1,7 @@
 package models
 
 import models.meta.Profile._
-import models.meta.Profile.driver.simple._
+import models.meta.Profile.driver.api._
 import models.meta.Schema._
 
 case class Director(
@@ -13,9 +13,5 @@ case class Director(
 }
 
 object Director extends EntityCompanion[Directors, Director, Long] {
-  val query = TableQuery[Directors]
-
-  val movies = toMany[Movies, Movie](
-    toQuery       = TableQuery[Movies],
-    joinCondition = _.id === _.directorID)
+  val movies = toMany[Movies, Movie]
 }

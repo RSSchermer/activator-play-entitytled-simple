@@ -1,4 +1,6 @@
-@(movie: Movie)(implicit flash: play.api.mvc.Flash, session: play.api.db.slick.Session)
+@(movie: Movie)(implicit flash: Flash, ec: scala.concurrent.ExecutionContext)
+
+@import models.meta.Profile._
 
 @main("Showing a movie") {
     <h1>Showing a movie</h1>

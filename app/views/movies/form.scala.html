@@ -1,4 +1,4 @@
-@(movieForm: Form[Movie], action: Call)(implicit session: play.api.db.slick.Session)
+@(movieForm: Form[Movie], directors: Seq[Director], action: Call)(implicit messages: Messages)
 
 @helper.form(action = action) {
     <fieldset>
@@ -6,7 +6,7 @@
 
         @helper.inputText(movieForm("title"))
         @helper.select(movieForm("directorID"),
-            Director.list.map(d => d.id.get.toString -> d.name),
+            directors.map(d => d.id.get.toString -> d.name),
             '_label -> "Director")
     </fieldset>
 

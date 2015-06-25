@@ -3,10 +3,14 @@ package controllers
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import play.api.db.slick._
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 import views._
 import models._
+import models.meta.Profile._
+import models.meta.Profile.driver.api._
 
 object Movies extends Controller {
   val movieForm = Form(
@@ -17,63 +21,76 @@ object Movies extends Controller {
     )(Movie.apply)(Movie.unapply)
   )
 
-  def list = DBAction { implicit rs =>
-    Ok(html.movies.list(Movie.include(Movie.director).list))
+  def list = Action.async { implicit rs =>
+    db.run(Movie.all.include(Movie.director).result).map { directors =>
+      Ok(html.movies.list(directors))
+    }
   }
 
-  def show(id: Long) = DBAction { implicit rs =>
-    Movie.include(Movie.director).find(id) match {
+  def show(id: Long) = Action.async { implicit rs =>
+    db.run(Movie.one(id).include(Movie.director).result).map {
       case Some(movie) =>
         Ok(html.movies.show(movie))
       case _ => NotFound
     }
   }
 
-  def create = DBAction { implicit rs =>
-    Ok(html.movies.create(movieForm))
+  def create = Action.async { implicit rs =>
+    db.run(Director.all.result).map { directors =>
+      Ok(html.movies.create(movieForm, directors))
+    }
   }
 
-  def save = DBAction { implicit rs =>
+  def save = Action.async { implicit rs =>
     movieForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(html.movies.create(formWithErrors)),
-      movie => {
-        Movie.insert(movie)
-        Redirect(routes.Movies.list())
-          .flashing("success" -> "The movie was created successfully.")
-      }
+      formWithErrors =>
+        db.run(Director.all.result).map { directors =>
+          BadRequest(html.movies.create(formWithErrors, directors))
+        },
+      movie =>
+        db.run(Movie.insert(movie)).map { _ =>
+          Redirect(routes.Movies.list())
+            .flashing("success" -> "The movie was created successfully.")
+        }
     )
   }
 
-  def edit(id: Long) = DBAction { implicit rs =>
-    Movie.find(id) match {
+  def edit(id: Long) = Action.async { implicit rs =>
+    for {
+      movieOption <- db.run(Movie.one(id).result)
+      directors <- db.run(Director.all.result)
+    } yield movieOption match {
       case Some(movie) =>
-        Ok(html.movies.edit(movie.id.get, movieForm.fill(movie)))
+        Ok(html.movies.edit(movie.id.get, movieForm.fill(movie), directors))
       case _ => NotFound
     }
   }
 
-  def update(id: Long) = DBAction { implicit rs =>
+  def update(id: Long) = Action.async { implicit rs =>
     movieForm.bindFromRequest.fold(
       formWithErrors =>
-        BadRequest(html.movies.edit(id, formWithErrors)),
-      movie => {
-        Movie.update(movie)
-        Redirect(routes.Movies.show(id))
-          .flashing("success" -> "The movie was updated successfully.")
-      }
+        db.run(Director.all.result).map { directors =>
+          BadRequest(html.movies.edit(id, formWithErrors, directors))
+        },
+      movie =>
+        db.run(Movie.update(movie)).map { _ =>
+          Redirect(routes.Movies.show(id))
+            .flashing("success" -> "The movie was updated successfully.")
+        }
     )
   }
 
-  def remove(id: Long) = DBAction { implicit rs =>
-    Movie.find(id) match {
+  def remove(id: Long) = Action.async { implicit rs =>
+    db.run(Movie.one(id).result).map {
       case Some(movie) => Ok(html.movies.remove(movie))
       case _ => NotFound
     }
   }
 
-  def delete(id: Long) = DBAction { implicit rs =>
-    Movie.delete(id)
-    Redirect(routes.Movies.list())
-      .flashing("success" -> "The movie was deleted successfully.")
+  def delete(id: Long) = Action.async { implicit rs =>
+    db.run(Movie.delete(id)).map { _ =>
+      Redirect(routes.Movies.list())
+        .flashing("success" -> "The movie was deleted successfully.")
+    }
   }
 }
